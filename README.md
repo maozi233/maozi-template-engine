@@ -1,2 +1,5 @@
 # maozi-template-engine
-实现 {{}} 绑定模板 @开头事件  v-for等模板绑定 通过setData方法更新
+1.实现 {{}} 绑定渲染模板
+2.实现@eventName 绑定事件
+3.v-for循环渲染
+4.setData方法更新渲染

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>temp-engine</title>
+</head>
+
+<body>
+  <div id="app"></div>
+</body>
+
+<script>
+  var app = DomRender.createApp({
+    el: document.getElementById('app'),
+    template: [
+      `
+      text: {{text}}
+      <div>name: {{infos.name}}</div>
+      <div>测试一行两个 name: {{infos.name}} name: {{infos.name}}</div>
+      <div>
+        age: {{infos.age}}
+        <p>hobby: {{infos.hobby}}</p>
+      </div>
+      <input type="text" value="{{input}}" @input="handleInput">
+      <div>input: {{input}}</div>
+      `
+    ].join(','),
+    data: {
+      text: 'ttttext',
+      infos: {
+        hobby: 'bbababa',
+        name: 'yaow',
+        age: 29
+      },
+      input: '123',
+    },
+    methods: {
+      handleInput(e) {
+        // console.log(e.target.value, e.target.nodeType);
+        this.setData({
+          input: e.target.value,
+          text: 30
+        })
+      }
+    }
+  });
+
+  console.log('app = ', app)
+</script>
+</html>

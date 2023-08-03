@@ -1,0 +1,27 @@
+{
+  "name": "maozi-template-engine",
+  "version": "1.0.0",
+  "description": "1.实现 {{}} 绑定渲染模板\r 2.实现@eventName 绑定事件\r 3.v-for循环渲染\r 4.setData方法更新渲染",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.common.js",
+    "server": "webpack serve --config webpack.common.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maozi233/maozi-template-engine.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maozi233/maozi-template-engine/issues"
+  },
+  "homepage": "https://github.com/maozi233/maozi-template-engine#readme",
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4",
+    "html-webpack-plugin": "^5.5.3",
+    "webpack-dev-server": "^4.15.1"
+  }
+}

@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    const app = document.querySelector('#app')
+    const dataBindMap = {}
+
+    const getPathArr = (path) => {
+      return path.split(/[\[\]\.]/).filter(p => p)
+    }
+    const getValueByPath = (obj, path) => {
+      const pathArr = getPathArr(path)
+      return pathArr.reduce((result, key) => {
+        if (!result) {
+          throw new Error(`Uncaught TypeError: Cannot read properties of undefined (reading '${key}')`)
+        }
+        if (typeof result === 'object') {
+          return result[key]
+        }
+      }, obj)
+    }
+
+    const setValueByPath = (obj, path, value) => {
+      const pathArr = getPathArr(path)
+      let result = obj
+      let i = 0
+      let len = pathArr.length
+      for (; i < len - 1; i += 1 ) {
+        result = result[pathArr[i]]
+      }
+      result[pathArr[i]] = value
+    }
+
+    function bindTemplateData(str, data) {
+      // 替换变量
+      return str.replace(/{{([^}]+)}}/g, (_, key) => {
+        return String(getValueByPath(data, key.trim()));
+      })
+    }
+
+    const getValueKeys = (template) => {
+      const re = /{{([^}]+)}}/g
+      const result = []
+      let tmp = null
+
+      do {
+          tmp = re.exec(template);
+          if (tmp) {
+            result.push(tmp[1].trim())
+          }
+      } while (tmp)
+
+      return result
+    }
+
+    const addToDataBindMap = (valueKeys, setter) => {
+      const keys = typeof valueKeys === 'string' ? [valueKeys] : valueKeys
+      keys.forEach(valueKey => {
+        const keyArr = getPathArr(valueKey)
+        keyArr.reduce((prev, cur) => {
+          const key = [prev, cur].filter(p => p).join('.')
+          if (!dataBindMap[key]) {
+            dataBindMap[key] = []
+          }
+          const setters = dataBindMap[key]
+          if (setters.indexOf(setter) === -1) {
+            setters.push(setter)
+          }
+          return key
+        }, '')
+      })
+    }
+
+    const walk = (parent, context) => {
+      const { childNodes } = parent
+      if (!childNodes.length) {
+        return
+      }
+      for(let i = 0, len = childNodes.length; i < len; i += 1) {
+        const node = childNodes[i]
+        if (node.nodeType === 3) {
+          if (node.textContent) {
+            const template = node.textContent
+            const valueKeys = getValueKeys(template)
+            if (valueKeys && valueKeys.length) {
+              const setter = (data) => {
+                node.textContent = bindTemplateData(template, data)
+              }
+              addToDataBindMap(valueKeys, setter)
+              setter(context.data)
+            }
+          }
+          continue;
+        }
+        if (node instanceof HTMLElement) {
+          const { attributes } = node
+          Object.keys(attributes).forEach(key => {
+            const { name, value } = attributes[key]
+            if (name.indexOf('@') === 0) {
+              const eventName = name.slice(1)
+              node.addEventListener(eventName, context.methods[value])
+            }
+          })
+          const vFor = attributes.getNamedItem('v-for')
+          if (vFor) {
+            // v-for只应该有一个key
+            const [valueKey] = getValueKeys(vFor.value)
+            const tpl = node.innerHTML
+            const setter = (data) => {
+              const list = data[valueKey]
+              node.innerHTML = list.map((p, idx) => {
+                return bindTemplateData(tpl, { item: p, $index: idx })
+              }).join('')
+            }
+            addToDataBindMap(valueKey, setter)
+            setter(context.data)
+            continue;
+          }
+        }
+        walk(node, context)
+      }
+    }
+
+    const render = ({
+      el,
+      template,
+      data,
+      mounted,
+      methods
+    }) => {
+      const that = {
+        data,
+        setData: (obj) => {
+          Object.keys(obj).forEach(key => {
+            setValueByPath(that.data, key, obj[key])
+          })
+          Object.keys(obj).forEach(key => {
+            const setters = dataBindMap[key]
+            if (setters && setters.length) {
+              setters.forEach(setter => setter(that.data))
+            }
+          })
+        }
+      }
+      // 初始化方法
+      Object.keys(methods).forEach(method => {
+        methods[method] = methods[method].bind(that)
+      })
+
+      el.innerHTML = template
+      // 解析dom，初始化值
+      walk(el, {
+        data,
+        methods,
+      })
+      // 生命周期
+      mounted.call(that)
+    }
+
+    render({
+      el: app,
+      template: [
+        '<div>',
+        '  <p>{{ dataA }}</p>',
+        '  <p>{{ dataB }}, {{ dataC.value }}</p>',
+        '  <button @click="handleClick">+1</button>',
+        '  <div v-for="{{ dataD }}">',
+        '    <p>{{ $index }}: {{ item.name }}, {{ item.value }}</p>',
+        '  </div>',
+        '</div>',
+      ].join(''),
+      data: {
+        dataA: 1,
+        dataB: 2,
+        dataC: {
+          value: 3,
+        },
+        dataD: [{
+          name: 'test',
+          value: 'test1',
+        }],
+      },
+      mounted() {
+        console.warn(dataBindMap)
+        setInterval(() => {
+          this.setData({
+            'dataC.value': this.data.dataC.value + 1,
+          })
+        }, 1000)
+
+        setTimeout(() => {
+          const dataD = this.data.dataD
+          dataD.push({ value: Date.now(), name: 'test' ,})
+          this.setData({
+            dataD,
+          })
+        }, 2000)
+      },
+      methods: {
+        handleClick() {
+          this.setData({
+            dataB: this.data.dataB + 1,
+          })
+        }
+      },
+    })
+  </script>
+</body>
+</html>

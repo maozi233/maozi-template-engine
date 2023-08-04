@@ -4,7 +4,7 @@
   "description": "1.实现 {{}} 绑定渲染模板\r 2.实现@eventName 绑定事件\r 3.v-for循环渲染\r 4.setData方法更新渲染",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config webpack.common.js",
+    "build": "webpack --config webpack.pro.js",
     "server": "webpack serve --config webpack.common.js"
   },
   "repository": {

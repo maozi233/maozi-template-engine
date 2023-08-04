@@ -30,7 +30,9 @@
       </div>
       <input type="text" value="{{input}}" @input="handleInput">
       <div>input: {{input}}</div>
-      <div fy-for="{{ infos.list }}"><p>list[{{$index}}]item: {{item.name}}</p></div>
+      <div fy-for="{{ infos.list }}">
+        <p @click="onItemClick" class="{{item.active}}">list[{{$index}}]item: {{item.name}}</p>
+      </div>
       <button @click="onClick">click</button>
       `
     ].join(','),
@@ -42,7 +44,7 @@
         age: 29,
         list: [
           { name: 'item-1' },
-          { name: 'item-2' },
+          { name: 'item-2', active: 'active' },
           { name: 'item-3' },
         ],
       },
@@ -62,13 +64,16 @@
           infos: {
             name: 'ywj',
             list: [
-              { name: 'item-1' },
+              { name: 'item-1', active: 'active' },
             ]
           },
           // 'infos.name': 'ywj',
           active: 'active',
           
         })
+      },
+      onItemClick(e) {
+        console.log(e.target);
       }
     }
   });

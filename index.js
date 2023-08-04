@@ -1,6 +1,3 @@
-/**
- * for循环用的innerHTML实现，所有 <div fy-for="{{infos}}"><p>{{item.xxx}}</p></div>里面必须套一层
- */
 var DomRender = {
 
   createApp(config) {
@@ -100,6 +97,9 @@ var DomRender = {
               // 绑定事件
               if (name.indexOf('@') === 0) {
                 var eventName = name.slice(1);
+                if (!context[value]) {
+                  throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading '+ value +')')
+                }
                 node.addEventListener(eventName, context[value])
               }
 
@@ -111,14 +111,16 @@ var DomRender = {
                 if (valueKeys.length) {
                   (function(node) {
                     var temp = node.innerHTML;
-                    function loopUpdate(data, template) {
-                      console.log(data);
+                    function loopUpdate(data) {
                       var list = DomRender.getValueByPath(data, valueKeys[0]) || [];
                       var innerHTML = '';
                       for (var j = 0; j < list.length; j++) {
                         innerHTML += DomRender.bindTemplateData(temp, { item: list[j], $index: j })
                       }
                       node.innerHTML = innerHTML;
+                      // 给重新渲染的dom绑定事件
+                      console.log(node)
+                      DomRender.compile(node, context);
                     }
                     context.addDep(valueKeys, loopUpdate);
                     loopUpdate(context.data);
@@ -215,6 +217,9 @@ var DomRender = {
     for (var i = 0; i < keys.length; i++) {
       var prop = keys[i];
       result = result[prop];
+      // if (result == undefined || result == null) {
+      //   throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading '+ prop +')')
+      // }
     }
     return result;
   },

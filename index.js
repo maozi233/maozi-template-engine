@@ -22,15 +22,33 @@ var DomRender = {
 
       // 依赖收集
       Dep: {},
+      // ['infos.name', 'infos.age']
       addDep(valueKeys, update) {
         for (var i = 0; i < valueKeys.length; i++) {
+          // infos.name
           var key = valueKeys[i];
-          
-          if (!this.Dep[key]) {
-            this.Dep[key] = [];
-          }
+          // ['infos', 'name']
+          var keyArr = DomRender.getPathArr(key);
+          var reduceKey = '';
 
-          this.Dep[key].push(update);
+          for(var j = 0; j < keyArr.length; j++) {
+            var splitKey = keyArr[j];
+            // infos.name
+            reduceKey = ([reduceKey, splitKey]).join('.')
+            if (j == 0) {
+              // infos
+              reduceKey = splitKey;
+            }
+
+            if (!this.Dep[reduceKey]) {
+              this.Dep[reduceKey] = [];
+            }
+            
+            var updates = this.Dep[reduceKey];
+            if (updates.indexOf(update) == -1) {
+              this.Dep[reduceKey].push(update);
+            }
+          }
         }
       },
     }
@@ -170,6 +188,15 @@ var DomRender = {
       result = result[prop];
     }
     return result;
+  },
+
+  /**
+   * 把key根据 []或者.来切割
+   * @param {string} path 
+   * @example 'infos.name' -> ['infos', 'name']
+   */
+  getPathArr(path) {
+    return path.split(/[\[\]\.]/)
   }
 }
 

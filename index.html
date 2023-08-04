@@ -25,6 +25,7 @@
       </div>
       <input type="text" value="{{input}}" @input="handleInput">
       <div>input: {{input}}</div>
+      <button @click="onClick">click</button>
       `
     ].join(','),
     data: {
@@ -42,6 +43,14 @@
         this.setData({
           input: e.target.value,
           text: 30
+        })
+      },
+      onClick(e) {
+        this.setData({
+          // infos: {
+          //   name: 'ywj'
+          // }
+          'infos.name': 'ywj'
         })
       }
     }

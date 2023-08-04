@@ -62,7 +62,7 @@ var DomRender = {
     this.bindMethods(config.methods, that);
     // 渲染dom
     config.el.innerHTML = config.template;
-    // 依赖收集
+    // 模板渲染
     this.compile(that.el, that);
 
     return that;

@@ -5,9 +5,11 @@ var DomRender = {
       el: config.el,
       data: config.data,
       setData(data) {
-        this.data = Object.assign(this.data, data);
-        console.log(this.Dep);
+        // console.log(this.Dep);
         for (var key in data) {
+          // 更新当前数据
+          DomRender.setValueByPath(this.data, key, data[key])
+          // 通知这条数据对应的依赖触发更新
           this.notify(key)
         }
       },
@@ -46,13 +48,11 @@ var DomRender = {
       },
       // 更新依赖
       notify(key) {
-        if (this.data.hasOwnProperty(key)) {
-          if (this.Dep[key]) {
-            var updates = this.Dep[key];
-            for (var i = 0; i < updates.length; i++) {
-              var update = updates[i];
-              update(this.data);
-            }
+        if (this.Dep[key]) {
+          var updates = this.Dep[key];
+          for (var i = 0; i < updates.length; i++) {
+            var update = updates[i];
+            update(this.data);
           }
         }
       }
@@ -79,7 +79,6 @@ var DomRender = {
   compile(el, context) {
 
     var childNodes = el.childNodes;
-    // console.log(childNodes)
     if (!childNodes.length) {
       return
     }
@@ -202,7 +201,19 @@ var DomRender = {
    */
   getPathArr(path) {
     return path.split(/[\[\]\.]/)
-  }
+  },
+
+  // 因为不能通过 'infos.name' 去设置 data['infos.name'] 只能一层层获取
+  setValueByPath (obj, path, value) {
+    const pathArr = this.getPathArr(path)
+    let result = obj
+    let i = 0
+    let len = pathArr.length
+    for (; i < len - 1; i += 1 ) {
+      result = result[pathArr[i]]
+    }
+    result[pathArr[i]] = value
+  },
 }
 
 window.DomRender = DomRender;

@@ -8,15 +8,7 @@ var DomRender = {
         this.data = Object.assign(this.data, data);
         console.log(this.Dep);
         for (var key in data) {
-          if (data.hasOwnProperty(key)) {
-            if (this.Dep[key]) {
-              var updates = this.Dep[key];
-              for (var i = 0; i < updates.length; i++) {
-                var update = updates[i];
-                update(this.data);
-              }
-            }
-          }
+          this.notify(key)
         }
       },
 
@@ -31,7 +23,8 @@ var DomRender = {
           var keyArr = DomRender.getPathArr(key);
           var reduceKey = '';
 
-          for(var j = 0; j < keyArr.length; j++) {
+          // 这里是因为遇到 'infos.name'的时候。要把这个依赖也添加到infos里面去。不然setData({infos: {}}) 无法触发更新
+          for (var j = 0; j < keyArr.length; j++) {
             var splitKey = keyArr[j];
             // infos.name
             reduceKey = ([reduceKey, splitKey]).join('.')
@@ -43,7 +36,7 @@ var DomRender = {
             if (!this.Dep[reduceKey]) {
               this.Dep[reduceKey] = [];
             }
-            
+
             var updates = this.Dep[reduceKey];
             if (updates.indexOf(update) == -1) {
               this.Dep[reduceKey].push(update);
@@ -51,6 +44,18 @@ var DomRender = {
           }
         }
       },
+      // 更新依赖
+      notify(key) {
+        if (this.data.hasOwnProperty(key)) {
+          if (this.Dep[key]) {
+            var updates = this.Dep[key];
+            for (var i = 0; i < updates.length; i++) {
+              var update = updates[i];
+              update(this.data);
+            }
+          }
+        }
+      }
     }
 
     // 绑定methods
@@ -79,18 +84,18 @@ var DomRender = {
       return
     }
 
-    for(var i = 0, len = childNodes.length; i < len; i += 1) {
+    for (var i = 0, len = childNodes.length; i < len; i += 1) {
       var node = childNodes[i];
 
       if (this.isElement(node)) {
         var attributes = node.attributes;
-        
+
         if (attributes.length) {
           for (var key in attributes) {
             if (attributes.hasOwnProperty(key)) {
               var name = attributes[key].name;
               var value = attributes[key].value;
-  
+
               // 绑定事件
               if (name.indexOf('@') === 0) {
                 var eventName = name.slice(1);
@@ -102,7 +107,7 @@ var DomRender = {
                 var valueKeys = this.getValueKeys(value);
                 if (valueKeys.length) {
                   // 闭包把 node, name, value 存下来
-                  (function(node, name, value) {
+                  (function (node, name, value) {
                     function update(data) {
                       node.setAttribute(name, DomRender.bindTemplateData(value, data))
                     }
@@ -121,7 +126,7 @@ var DomRender = {
         var valueKeys = this.getValueKeys(template);
         if (valueKeys.length) {
           // 闭包保存 template 和node
-          (function(node, template) {
+          (function (node, template) {
             function update(data) {
               node.textContent = DomRender.bindTemplateData(template, data)
             }

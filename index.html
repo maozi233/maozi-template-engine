@@ -40,8 +40,8 @@
       text: 'ttttext',
       infos: {
         hobby: 'bbababa',
-        name: 'yaow',
-        age: 29,
+        name: 'yyyy',
+        age: 111,
         list: [
           { name: 'item-1' },
           { name: 'item-2', active: 'active' },
@@ -56,20 +56,11 @@
         // console.log(e.target.value, e.target.nodeType);
         this.setData({
           input: e.target.value,
-          text: 30
         })
       },
       onClick(e) {
         this.setData({
-          infos: {
-            name: 'ywj',
-            list: [
-              { name: 'item-1', active: 'active' },
-            ]
-          },
-          // 'infos.name': 'ywj',
           active: 'active',
-          
         })
       },
       onItemClick(e) {

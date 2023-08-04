@@ -235,10 +235,10 @@ var DomRender = {
 
   // 因为不能通过 'infos.name' 去设置 data['infos.name'] 只能一层层获取
   setValueByPath (obj, path, value) {
-    const pathArr = this.getPathArr(path)
-    let result = obj
-    let i = 0
-    let len = pathArr.length
+    var pathArr = this.getPathArr(path)
+    var result = obj
+    var i = 0
+    var len = pathArr.length
     for (; i < len - 1; i += 1 ) {
       result = result[pathArr[i]]
     }

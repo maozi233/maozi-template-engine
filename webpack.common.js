@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin'); // 打包之前清空dist目录
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: {
     index: './index.js',
   },

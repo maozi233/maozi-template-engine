@@ -86,6 +86,7 @@
       for(let i = 0, len = childNodes.length; i < len; i += 1) {
         const node = childNodes[i]
         if (node.nodeType === 3) {
+          console.log(node)
           if (node.textContent) {
             const template = node.textContent
             const valueKeys = getValueKeys(template)
@@ -189,19 +190,19 @@
       },
       mounted() {
         console.warn(dataBindMap)
-        setInterval(() => {
-          this.setData({
-            'dataC.value': this.data.dataC.value + 1,
-          })
-        }, 1000)
+        // setInterval(() => {
+        //   this.setData({
+        //     'dataC.value': this.data.dataC.value + 1,
+        //   })
+        // }, 1000)
 
-        setTimeout(() => {
-          const dataD = this.data.dataD
-          dataD.push({ value: Date.now(), name: 'test' ,})
-          this.setData({
-            dataD,
-          })
-        }, 2000)
+        // setTimeout(() => {
+        //   const dataD = this.data.dataD
+        //   dataD.push({ value: Date.now(), name: 'test' ,})
+        //   this.setData({
+        //     dataD,
+        //   })
+        // }, 2000)
       },
       methods: {
         handleClick() {

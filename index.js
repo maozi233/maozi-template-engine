@@ -1,3 +1,6 @@
+/**
+ * for循环用的innerHTML实现，所有 <div fy-for="{{infos}}"><p>{{item.xxx}}</p></div>里面必须套一层
+ */
 var DomRender = {
 
   createApp(config) {
@@ -77,7 +80,6 @@ var DomRender = {
   },
 
   compile(el, context) {
-
     var childNodes = el.childNodes;
     if (!childNodes.length) {
       return
@@ -101,17 +103,40 @@ var DomRender = {
                 node.addEventListener(eventName, context[value])
               }
 
+              // for循环 fy-for="{{list}}"
+              else if (name.indexOf('fy-for') === 0) {
+                console.log(`${name}=${value}`)
+                // ['list']
+                var valueKeys = this.getValueKeys(value);
+                if (valueKeys.length) {
+                  (function(node) {
+                    var temp = node.innerHTML;
+                    function loopUpdate(data, template) {
+                      console.log(data);
+                      var list = DomRender.getValueByPath(data, valueKeys[0]) || [];
+                      var innerHTML = '';
+                      for (var j = 0; j < list.length; j++) {
+                        innerHTML += DomRender.bindTemplateData(temp, { item: list[j], $index: j })
+                      }
+                      node.innerHTML = innerHTML;
+                    }
+                    context.addDep(valueKeys, loopUpdate);
+                    loopUpdate(context.data);
+                  })(node)
+                }
+              }
+
               // 绑定attr里面的{{}}
-              if (this.isInterpolation(value)) {
+              else if (this.isInterpolation(value)) {
                 var valueKeys = this.getValueKeys(value);
                 if (valueKeys.length) {
                   // 闭包把 node, name, value 存下来
                   (function (node, name, value) {
-                    function update(data) {
+                    function attrUpdate(data) {
                       node.setAttribute(name, DomRender.bindTemplateData(value, data))
                     }
-                    context.addDep(valueKeys, update);
-                    update(context.data)
+                    context.addDep(valueKeys, attrUpdate);
+                    attrUpdate(context.data)
                   })(node, name, value)
                 }
               }
@@ -126,11 +151,11 @@ var DomRender = {
         if (valueKeys.length) {
           // 闭包保存 template 和node
           (function (node, template) {
-            function update(data) {
+            function textUpdate(data) {
               node.textContent = DomRender.bindTemplateData(template, data)
             }
-            context.addDep(valueKeys, update);
-            update(context.data);
+            context.addDep(valueKeys, textUpdate);
+            textUpdate(context.data);
           })(node, template)
         }
       }

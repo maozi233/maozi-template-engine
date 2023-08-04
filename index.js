@@ -22,11 +22,16 @@ var DomRender = {
 
       // 依赖收集
       Dep: {},
-      addDep(key, update) {
-        if (!this.Dep[key]) {
-          this.Dep[key] = [];
+      addDep(valueKeys, update) {
+        for (var i = 0; i < valueKeys.length; i++) {
+          var key = valueKeys[i];
+          
+          if (!this.Dep[key]) {
+            this.Dep[key] = [];
+          }
+
+          this.Dep[key].push(update);
         }
-        this.Dep[key].push(update);
       },
     }
 

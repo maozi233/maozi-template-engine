@@ -98,7 +98,7 @@ var DomRender = {
               if (name.indexOf('@') === 0) {
                 var eventName = name.slice(1);
                 if (!context[value]) {
-                  throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading '+ value +')')
+                  throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading ' + value + ')')
                 }
                 node.addEventListener(eventName, context[value])
               }
@@ -109,7 +109,7 @@ var DomRender = {
                 // ['list']
                 var valueKeys = this.getValueKeys(value);
                 if (valueKeys.length) {
-                  (function(node) {
+                  (function (node) {
                     var temp = node.innerHTML;
                     function loopUpdate(data) {
                       var list = DomRender.getValueByPath(data, valueKeys[0]) || [];
@@ -200,7 +200,7 @@ var DomRender = {
    */
   bindTemplateData(str, data) {
     // 替换变量
-    return str.replace(/{{([^}]+)}}/g, (_, key) => {
+    return str.replace(/{{([^}]+)}}/g, function (_, key) {
       return String(DomRender.getValueByPath(data, key.trim()));
     })
   },
@@ -234,12 +234,12 @@ var DomRender = {
   },
 
   // 因为不能通过 'infos.name' 去设置 data['infos.name'] 只能一层层获取
-  setValueByPath (obj, path, value) {
+  setValueByPath(obj, path, value) {
     var pathArr = this.getPathArr(path)
     var result = obj
     var i = 0
     var len = pathArr.length
-    for (; i < len - 1; i += 1 ) {
+    for (; i < len - 1; i += 1) {
       result = result[pathArr[i]]
     }
     result[pathArr[i]] = value

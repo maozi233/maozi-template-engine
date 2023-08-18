@@ -18,10 +18,13 @@
   },
   "homepage": "https://github.com/maozi233/maozi-template-engine#readme",
   "devDependencies": {
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "babel-loader": "^9.1.3",
     "clean-webpack-plugin": "^4.0.0",
+    "html-webpack-plugin": "^5.5.3",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4",
-    "html-webpack-plugin": "^5.5.3",
     "webpack-dev-server": "^4.15.1"
   }
 }

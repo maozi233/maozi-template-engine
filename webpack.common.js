@@ -22,14 +22,20 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
     ]
   },
+  target: ['web', 'es5'],
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './index.html', // 指定 HTML 模板文件路径
-      scriptLoading: 'blocking', // 不添加defer
-      inject: 'body',
-    }),
     new CleanWebpackPlugin(),
   ],
 }

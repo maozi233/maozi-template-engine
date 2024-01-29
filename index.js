@@ -59,7 +59,7 @@ var DomRender = {
     }
 
     // 绑定methods
-    this.bindMethods(config.methods, that);
+    this.proxyMethods(config.methods, that);
     // 渲染dom
     config.el.innerHTML = config.template;
     // 模板渲染
@@ -68,7 +68,7 @@ var DomRender = {
     return that;
   },
 
-  bindMethods(methods, context) {
+  proxyMethods(methods, context) {
     for (var key in methods) {
       if (methods.hasOwnProperty(key)) {
         context[key] = methods[key].bind(context);
@@ -97,10 +97,13 @@ var DomRender = {
               // 绑定事件
               if (name.indexOf('@') === 0) {
                 var eventName = name.slice(1);
-                if (!context[value]) {
+                var method = context[value];
+                if (!method) {
                   throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading ' + value + ')')
                 }
-                node.addEventListener(eventName, context[value])
+                node.addEventListener(eventName, function (event) {
+                  method(event)
+                })
               }
 
               // for循环 fy-for="{{list}}"
@@ -181,7 +184,10 @@ var DomRender = {
   /**
    * 获取字符串模板中 {{}} 中的值
    * @param {str} template 
-   * @example '<p>{{ dataB }}, {{ dataC }}</p>' -> ["dataB", "dataC"]
+   * @example
+   *  // 使用示例
+   *  var valueKeys = DomRender.getValueKeys('<p>{{ dataB }}, {{ dataC }}</p>')
+   *  console.log(valueKeys); // 输出 ["dataB", "dataC"]
    */
   getValueKeys(template) {
     var regex = /{{\s*(.*?)\s*}}/g;
@@ -196,12 +202,19 @@ var DomRender = {
   /**
    * @param {string} str 
    * @param {object} data 
-   * @example (text: {{text}}, {text: 123}) -> 'text: 123' 
+   * @example
+   *  // 使用示例
+   *  var text = DomRender.bindTemplateData('文案: {{text}}', {text: 123})
+   *  console.log(text); // 输出 '文案: 123'
    */
   bindTemplateData(str, data) {
     // 替换变量
     return str.replace(/{{([^}]+)}}/g, function (_, key) {
-      return String(DomRender.getValueByPath(data, key.trim()));
+      var value = DomRender.getValueByPath(data, key.trim())
+      if (DomRender.isFalsy(value)) {
+        value = '';
+      }
+      return String(value);
     })
   },
 
@@ -209,7 +222,10 @@ var DomRender = {
    * 因为不能通过 'infos.name' 去访问 data['infos.name'] 只能一层层获取
    * @param {object} data 
    * @param {string} key 
-   * @returns ({infos: {name: 'yaowei'}}, 'infos.name') -> 'yaowei'
+   * @example
+   *  // 使用示例
+   *  var value = DomRender.getValueByPath({person: {age: '18'}}, 'person.age')
+   *  console.log(value); // 输出 '18'
    */
   getValueByPath(data, key) {
     var keys = key.split('.');
@@ -227,7 +243,10 @@ var DomRender = {
   /**
    * 把key根据 []或者.来切割
    * @param {string} path 
-   * @example 'infos.name' -> ['infos', 'name']
+   * @example
+   *  // 使用示例
+   *  var value = DomRender.getPathArr('infos.name')
+   *  console.log(value); // 输出 ['infos', 'name']
    */
   getPathArr(path) {
     return path.split(/[\[\]\.]/)
@@ -244,6 +263,10 @@ var DomRender = {
     }
     result[pathArr[i]] = value
   },
+
+  isFalsy(value) {
+    return value === null || value === undefined
+  }
 }
 
 window.DomRender = DomRender;

@@ -97,14 +97,17 @@ var DomRender = {
 
               // 绑定事件
               if (name.indexOf('@') === 0) {
-                var eventName = name.slice(1);
-                var method = context[value];
-                if (!method) {
-                  throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading ' + value + ')')
-                }
-                node.addEventListener(eventName, function (event) {
-                  method(event)
-                })
+                (function bindMethod(name, value) {
+                  var eventName = name.slice(1);
+                  var method = context[value];
+                  if (!method) {
+                    throw new Error('Uncaught TypeError: Cannot read properties of undefined (reading ' + value + ')')
+                  }
+                  node.addEventListener(eventName, function (event) {
+                    console.log(name, value)
+                    method(event)
+                  })
+                })(name, value)
               }
 
               // for循环 fy-for="{{list}}"

@@ -21,7 +21,7 @@
     el: document.getElementById('app'),
     template: [
       `
-      text: {{text}}
+      text: {{text}} {{text}} {{text}}
       <div class="{{active}}">name: {{infos.name}}</div>
       <div>测试一行两个 name: {{infos.name}} name: {{infos.name}}</div>
       <div>
@@ -31,7 +31,11 @@
       <input type="text" value="{{input}}" @input="handleInput">
       <div>input: {{input}}</div>
       <div fy-for="{{ infos.list }}">
-        <p @click="onItemClick" class="{{item.active}}">list[{{$index}}]item: {{item.name}}</p>
+        <p @click="onItemClick" class="{{item.active}}" data-index="{{$index}}">
+          <span>list[{{$index}}]item: {{item.name}}</span>
+          <span>test</span>
+          <div>tttt</div>
+        </p>
       </div>
       <button @click="onClick">click</button>
       `
@@ -59,16 +63,19 @@
         })
       },
       onClick(e) {
+        console.log('onclick called')
         this.setData({
           active: 'active',
         })
       },
       onItemClick(e) {
-        console.log(e.target);
+        var index = e.currentTarget.getAttribute('data-index');;
+        console.log(e.currentTarget, index);
       }
     }
   });
 
   console.log('app = ', app)
 </script>
+
 </html>

@@ -81,6 +81,7 @@ var DomRender = {
     if (!childNodes.length) {
       return
     }
+    var renderChild = true;
 
     for (var i = 0, len = childNodes.length; i < len; i += 1) {
       var node = childNodes[i];
@@ -123,6 +124,7 @@ var DomRender = {
                       node.innerHTML = innerHTML;
                       // 给重新渲染的dom绑定事件
                       console.log(node)
+                      renderChild = false;
                       DomRender.compile(node, context);
                     }
                     context.addDep(valueKeys, loopUpdate);
@@ -166,7 +168,7 @@ var DomRender = {
       }
 
       // 递归
-      if (node.childNodes && node.childNodes.length) {
+      if (renderChild && node.childNodes && node.childNodes.length) {
         this.compile(node, context);
       }
     }
